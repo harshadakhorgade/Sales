@@ -1,0 +1,23 @@
+{% comment %} <form method="post">
+  {% csrf_token %}
+  <input type="number" name="amount" step="0.01" placeholder="Enter amount">
+  <button type="submit">Withdraw</button>
+</form>
+
+{% if payouts %}
+  <h3>Your Withdrawals</h3>
+  <table>
+    <tr>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Date</th>
+    </tr>
+    {% for payout in payouts %}
+    <tr>
+      <td>{{ payout.amount }}</td>
+      <td>{{ payout.status }}</td>
+      <td>{{ payout.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endif %} {% endcomment %}

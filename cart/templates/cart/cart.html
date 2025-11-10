@@ -1,0 +1,148 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+    Cart
+{% endblock title %}
+
+{% block content %}
+<div class="cart-container">
+    <table>
+        <div class="continue-shopping">
+            <a href="{% url 'home' %}"><button>&larr; Continue Shopping</button></a>
+        </div>
+        <hr>
+        {% if cart_items %}
+        <thead>
+            <tr>
+                <th>Items: <strong>{{ total_quantity }}</strong></th>
+                <th>Total: <strong>Rs. {{ order_total }}</strong></th>
+                
+                {% if user.is_authenticated %}
+                <th class="checkout"><a href="{% url 'checkout' %}"><button type="button">Checkout</button></a></th>
+                {% else %}
+                <th class="checkout"><a href="{% url 'signin' %}"><button type="button">Checkout</button></a></th>
+                {% endif %}
+            </tr>
+        </thead>
+        {% endif %}
+    </table>
+
+    <div class="cart-elements-container">
+        {% if cart_items %}
+        <div class="cart-element-header">
+            <div class="cart-item-image"></div>
+            <div class="cart-item-name"><strong>Item</strong></div>
+            <div class="cart-item-quantity"><strong>Quantity</strong></div>
+            <div class="cart-item-price"><strong>Price</strong></div>
+            <div class="cart-item-total"><strong>Total</strong></div>
+            <div class="cart-item-remove"></div>
+        </div>
+        <hr>
+        {% for item in cart_items %}
+            <div class="cart-element">
+                <div class="cart-item-image"><img src="{{ item.imageURL }}" alt="" width="100%"></div>
+                <div class="cart-item-name">{{ item.name }}</div>
+                <div class="cart-item-quantity"> 
+                    <button type="button" class="reduce-quantity" data-index="{{ item.product.id }}" style="padding: .5em .8em; min-height: 44px; min-width: 44px;">&minus;</button>
+                    <span class="item-quantity" data-index="{{ item.product.id }}" style="padding: 0.5em; font-size: 16px;">{{ item.quantity }}</span>
+                    <button type="button" class="add-quantity" data-index="{{ item.product.id }}" style="padding: .5em .8em; min-height: 44px; min-width: 44px;">&plus;</button>
+                </div>
+                {% if item.product.is_sale %}
+                <div class="cart-item-price">Rs. {{item.product.sale_price}}</div>
+                {% else %}
+                <div class="cart-item-price">Rs. {{item.product.price}}</div> 
+                {% endif %}
+                <div class="cart-item-total">Rs. {{item.total_price}}</div>
+                <div class="cart-item-remove">
+                    <button type="button" data-index="{{ item.product.id }}" class="remove-item" style="padding: .5em .8em; background-color: red; color: white; min-height: 44px; font-size: 16px;">Remove</button>
+                </div>
+            </div>
+        {% endfor %}
+        {% else %}
+        <div class="cart-element">
+            <br><br><br><br><br><br>
+            <h1>Nothing in your cart... <a href="{% url 'home' %}">Continue Shopping</a></h1>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+$(document).on('click', '.add-quantity', function(e){
+    e.preventDefault();
+    var productId = $(this).data('index');
+    var quantityElement = $('.item-quantity[data-index="' + productId + '"]');
+    var productQty = parseInt(quantityElement.text()) + 1;
+
+    $.ajax({
+        type: 'POST',
+        url: '{% url "api_cart_update" %}',
+        data: JSON.stringify({
+            product_id: productId,
+            quantity: productQty
+        }),
+        contentType: 'application/json',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function(response){
+            location.reload();
+        },
+        error: function(xhr){
+            console.error("Error updating cart:", xhr.responseText);
+        }
+    });
+});
+
+$(document).on('click', '.reduce-quantity', function(e){
+    e.preventDefault();
+    var productId = $(this).data('index');
+    var quantityElement = $('.item-quantity[data-index="' + productId + '"]');
+    var productQty = parseInt(quantityElement.text()) - 1;
+    if (productQty < 1) return;
+
+    $.ajax({
+        type: 'POST',
+        url: '{% url "api_cart_update" %}',
+        data: JSON.stringify({
+            product_id: productId,
+            quantity: productQty
+        }),
+        contentType: 'application/json',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function(response){
+            location.reload();
+        },
+        error: function(xhr){
+            console.error("Error reducing cart item:", xhr.responseText);
+        }
+    });
+});
+
+$(document).on('click', '.remove-item', function(e){
+    e.preventDefault();
+    var productId = $(this).data('index');
+
+    $.ajax({
+        type: 'POST',
+        url: '{% url "api_cart_delete" %}',
+        data: JSON.stringify({
+            product_id: productId
+        }),
+        contentType: 'application/json',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function(response){
+            location.reload();
+        },
+        error: function(xhr){
+            console.error("Error removing cart item:", xhr.responseText);
+        }
+    });
+});
+</script>
+
+{% endblock content %}

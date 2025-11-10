@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Test</title>
+    <link rel="stylesheet" href="css/toast.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background-color: #0056b3;
+        }
+        .test-button.success { background-color: #28a745; }
+        .test-button.error { background-color: #dc3545; }
+        .test-button.warning { background-color: #ffc107; color: black; }
+        .test-button.info { background-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Toast Notification Test</h1>
+        <p>Click the buttons below to test different types of toast notifications:</p>
+        
+        <button class="test-button success" onclick="showSuccess('This is a success message!')">Test Success Toast</button>
+        <button class="test-button error" onclick="showError('This is an error message!')">Test Error Toast</button>
+        <button class="test-button warning" onclick="showWarning('This is a warning message!')">Test Warning Toast</button>
+        <button class="test-button info" onclick="showInfo('This is an info message!')">Test Info Toast</button>
+        
+        <hr>
+        
+        <h2>Django Message Simulation</h2>
+        <p>Click these buttons to simulate Django messages:</p>
+        
+        <button class="test-button success" onclick="simulateDjangoMessage('Product added to cart!', 'success')">Simulate Cart Success</button>
+        <button class="test-button error" onclick="simulateDjangoMessage('Invalid credentials!', 'error')">Simulate Login Error</button>
+        <button class="test-button warning" onclick="simulateDjangoMessage('Session will expire soon!', 'warning')">Simulate Session Warning</button>
+        
+        <hr>
+        
+        <h2>Debug Information</h2>
+        <p>Check the browser console (F12) for debug logs.</p>
+        <button class="test-button" onclick="checkToastSystem()">Check Toast System Status</button>
+    </div>
+
+    <script src="js/toast.js"></script>
+    <script>
+        function simulateDjangoMessage(message, type) {
+            // Create a fake Django message element
+            const fakeMessage = document.createElement('div');
+            fakeMessage.className = 'alert-message';
+            fakeMessage.setAttribute('data-message-type', type);
+            fakeMessage.innerHTML = message + '<p class="close-message">&times;</p>';
+            
+            // Add it to the page
+            document.body.appendChild(fakeMessage);
+            
+            // Process it with the toast system
+            setTimeout(() => {
+                toastNotification.processDjangoMessages();
+            }, 100);
+        }
+        
+        function checkToastSystem() {
+            console.log('=== Toast System Status ===');
+            console.log('Toast container exists:', !!document.getElementById('toast-container'));
+            console.log('Toast notification object:', toastNotification);
+            console.log('Available functions:', {
+                showToast: typeof showToast,
+                showSuccess: typeof showSuccess,
+                showError: typeof showError,
+                showWarning: typeof showWarning,
+                showInfo: typeof showInfo,
+                testToast: typeof testToast
+            });
+            
+            // Test creating a toast manually
+            if (typeof showSuccess === 'function') {
+                showSuccess('System check: Toast system is working!');
+            } else {
+                console.error('Toast functions not available!');
+            }
+        }
+        
+        // Auto-check system on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Test page loaded');
+            setTimeout(checkToastSystem, 1000);
+        });
+    </script>
+</body>
+</html>

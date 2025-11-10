@@ -1,0 +1,81 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}
+    Update Profile Information
+{% endblock title %}
+
+{% block content %}
+<div class="form-container">
+    <h2 style="text-align: center; margin-bottom: 2rem; color: #333;">Update Your Profile Information</h2>
+    
+    <form action="{% url 'update_info' %}" method="post" class="register-form">
+        {% csrf_token %}
+        
+        <div class="login-container">
+            <!-- User Information (Read-only) -->
+            <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <h3 style="color: #495057; margin-bottom: 1rem;">Your Information</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.full_name.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Full Name:</label>
+                    {{ form.full_name }}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.email.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email:</label>
+                    {{ form.email }}
+                </div>
+                <p style="font-size: 0.9rem; color: #6c757d; margin: 0;">This information was provided during registration and cannot be changed here.</p>
+            </div>
+
+            <!-- Editable Profile Information -->
+            <h3 style="color: #495057; margin-bottom: 1rem;">Profile Information</h3>
+            
+            <div style="margin-bottom: 1rem;">
+                <label for="{{ form.phone.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Phone:</label>
+                {{ form.phone }}
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label for="{{ form.address1.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Address Line 1:</label>
+                {{ form.address1 }}
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label for="{{ form.address2.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Address Line 2:</label>
+                {{ form.address2 }}
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <div style="flex: 1;">
+                    <label for="{{ form.city.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">City:</label>
+                    {{ form.city }}
+                </div>
+                <div style="flex: 1;">
+                    <label for="{{ form.state.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">State:</label>
+                    {{ form.state }}
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="flex: 1;">
+                    <label for="{{ form.zipcode.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Zip Code:</label>
+                    {{ form.zipcode }}
+                </div>
+                <div style="flex: 1;">
+                    <label for="{{ form.country.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Country:</label>
+                    {{ form.country }}
+                </div>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 0.75rem; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer;">Update Profile</button>
+        </div>
+        
+        <div class="login-container">
+            <button type="button" class="cancelbtn" id="cancel-signup-button" style="width: 100%; padding: 0.75rem; background-color: #6c757d; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer;">
+                <a href="{% url 'home' %}" style="color: white; text-decoration: none;">Cancel</a>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock content %}
+    

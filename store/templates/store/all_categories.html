@@ -1,0 +1,18 @@
+{% extends 'main/base.html' %}
+
+
+{% block title %}
+    All Category
+{% endblock title %}
+
+    
+{% block content %}
+<h3 class="section-title">Product Categories</h3>
+
+{% for category in categories %}
+    <p><a href="{% url 'category' category.slug %}" style="color: white;">{{category.name}}</a></p>
+{% endfor %}
+
+
+
+{% endblock content %}

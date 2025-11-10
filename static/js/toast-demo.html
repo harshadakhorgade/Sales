@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast Notification Demo</title>
+    <link rel="stylesheet" href="css/toast.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .demo-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .demo-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .demo-button.success {
+            background-color: #10b981;
+            color: white;
+        }
+        .demo-button.error {
+            background-color: #ef4444;
+            color: white;
+        }
+        .demo-button.warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+        .demo-button.info {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .demo-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🍞 Toast Notification Demo</h1>
+        <p>This demo shows the toast notification system that has been implemented in your Django project.</p>
+        
+        <div class="demo-section">
+            <h3>Interactive Demo</h3>
+            <p>Click the buttons below to see different types of toast notifications:</p>
+            <div class="demo-buttons">
+                <button class="demo-button success" onclick="showSuccess('Registration successful! Welcome to our platform.')">Success Toast</button>
+                <button class="demo-button error" onclick="showError('Payment failed. Please check your payment details.')">Error Toast</button>
+                <button class="demo-button warning" onclick="showWarning('Your session will expire in 5 minutes.')">Warning Toast</button>
+                <button class="demo-button info" onclick="showInfo('New features are available in your dashboard.')">Info Toast</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>Features</h3>
+            <ul>
+                <li>✅ Modern, responsive design</li>
+                <li>✅ Auto-dismiss after 5 seconds</li>
+                <li>✅ Manual close button</li>
+                <li>✅ Progress bar animation</li>
+                <li>✅ Smooth slide-in/out animations</li>
+                <li>✅ Mobile-friendly</li>
+                <li>✅ Dark mode support</li>
+                <li>✅ Pause on page visibility change</li>
+            </ul>
+        </div>
+
+        <div class="demo-section">
+            <h3>Usage in Your Django Project</h3>
+            <p>The toast system automatically converts Django messages to toast notifications. Your existing code will work without changes:</p>
+            <div class="code-block">
+# In your Django views (no changes needed)
+messages.success(request, 'Product added to cart!')
+messages.error(request, 'Invalid credentials.')
+messages.warning(request, 'Session expired.')
+messages.info(request, 'Profile updated successfully.')
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>Manual Toast Creation</h3>
+            <p>You can also create toasts manually in JavaScript:</p>
+            <div class="code-block">
+// Show different types of toasts
+showSuccess('Operation completed successfully!');
+showError('Something went wrong!');
+showWarning('Please be careful!');
+showInfo('Here is some information!');
+
+// Or use the generic function
+showToast('Custom message', 'success', 3000); // 3 second duration
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>What Changed</h3>
+            <ul>
+                <li>✅ Added <code>static/css/toast.css</code> - Modern toast styling</li>
+                <li>✅ Added <code>static/js/toast.js</code> - Toast functionality</li>
+                <li>✅ Updated base templates to include toast system</li>
+                <li>✅ Hidden old alert message styling</li>
+                <li>✅ Automatic conversion of Django messages to toasts</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="js/toast.js"></script>
+    <script>
+        // Demo function to show multiple toasts
+        function showMultipleToasts() {
+            showSuccess('First toast - Success!');
+            setTimeout(() => showError('Second toast - Error!'), 500);
+            setTimeout(() => showWarning('Third toast - Warning!'), 1000);
+            setTimeout(() => showInfo('Fourth toast - Info!'), 1500);
+        }
+
+        // Add a button for multiple toasts demo
+        document.addEventListener('DOMContentLoaded', function() {
+            const demoButtons = document.querySelector('.demo-buttons');
+            const multipleButton = document.createElement('button');
+            multipleButton.className = 'demo-button info';
+            multipleButton.textContent = 'Multiple Toasts';
+            multipleButton.onclick = showMultipleToasts;
+            demoButtons.appendChild(multipleButton);
+        });
+    </script>
+</body>
+</html>

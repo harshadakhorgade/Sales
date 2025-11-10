@@ -1,0 +1,108 @@
+{% extends 'main/base.html' %}
+{% block title %}
+    Order History
+{% endblock title %}
+{% block content %}
+<div class="container">
+    <div class="content">
+        <div class="main-content">
+            <!-- Page Header -->
+            <section class="page-header">
+                <div class="header-card">
+                    <div class="header-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <path d="M9 9h6m-6 4h6m-6 4h4"/>
+                            <circle cx="7" cy="7" r="1"/>
+                        </svg>
+                    </div>
+                    <div class="header-info">
+                        <h1>Your Order History</h1>
+                        <p>Track and manage all your orders in one place</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Orders Section -->
+            <section class="orders-section">
+                {% if orders %}
+                    <div class="orders-grid">
+                        {% for order in orders %}
+                            <div class="order-card">
+                                <div class="order-header">
+                                    <div class="order-id">
+                                        <span class="order-number">#{{ order.id }}</span>
+                                        <span class="order-date">{{ order.date_ordered|date:"d M Y" }}</span>
+                                    </div>
+                                    <div class="order-status">
+                                        {% if order.is_delivered %}
+                                            <span class="status-badge delivered">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M20 6L9 17l-5-5"/>
+                                                </svg>
+                                                Delivered
+                                            </span>
+                                        {% elif order.is_shipped %}
+                                            <span class="status-badge shipped">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M20 6L9 17l-5-5"/>
+                                                </svg>
+                                                Shipped
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge pending">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <polyline points="12,6 12,12 16,14"/>
+                                                </svg>
+                                                Pending
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="order-body">
+                                    <div class="order-amount">
+                                        <span class="currency">₹</span>
+                                        <span class="amount">{{ order.amount_paid }}</span>
+                                    </div>
+                                    
+                                    <div class="order-actions">
+                                        <a href="{% url 'order_detail' order.id %}" class="action-button primary">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                <circle cx="12" cy="12" r="3"/>
+                                            </svg>
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="8" cy="21" r="1"/>
+                                <circle cx="19" cy="21" r="1"/>
+                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                            </svg>
+                        </div>
+                        <h3>No Orders Yet</h3>
+                        <p>You haven't placed any orders yet. Start shopping to see your order history here!</p>
+                        <a href="/" class="empty-action-button">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.35 2.65M7 13h10M17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM9 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                            </svg>
+                            Start Shopping
+                        </a>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

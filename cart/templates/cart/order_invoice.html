@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice #{{ order.id }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        h2 { text-align: center; }
+        .section { margin-bottom: 20px; }
+        .label { font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+        .totals { text-align: right; margin-top: 20px; }
+        .print-btn { margin-top: 20px; display: flex; justify-content: center; }
+        button { padding: 8px 20px; font-size: 16px; cursor: pointer; }
+        @media print {
+            .print-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h2>Order Invoice</h2>
+
+    <div class="section">
+        <p><span class="label">Order ID:</span> {{ order.id }}</p>
+        <p><span class="label">Date Ordered:</span> {{ order.date_ordered }}</p>
+        <p><span class="label">Customer Name:</span> {{ order.full_name }}</p>
+        <p><span class="label">Email:</span> {{ order.email }}</p>
+        <p><span class="label">Shipping Address:</span> {{ order.shipping_address|linebreaksbr }}</p>
+        <p><span class="label">Order Status:</span> {{ order.status }}</p>
+        <p><span class="label">Payment Method:</span> {{ order.payment_method }}</p>
+        <p><span class="label">Payment Status:</span> {{ order.payment_status }}</p>
+        {% if order.transaction_id %}
+            <p><span class="label">Transaction ID:</span> {{ order.transaction_id }}</p>
+        {% endif %}
+        {% if order.courier_service %}
+            <p><span class="label">Courier Service:</span> {{ order.courier_service }}</p>
+        {% endif %}
+        {% if order.tracking_number %}
+            <p><span class="label">Tracking Number:</span> {{ order.tracking_number }}</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h3>Order Items</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price (₹)</th>
+                    <th>Subtotal (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ item.quantity|floatformat:0|add:""|floatformat:"2" |add:""|floatformat:"2" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="totals">
+        <p><span class="label">Total Paid:</span> ₹{{ order.amount_paid }}</p>
+    </div>
+
+    <div class="print-btn">
+        <button onclick="window.print()">Print Invoice</button>
+    </div>
+</body>
+</html>

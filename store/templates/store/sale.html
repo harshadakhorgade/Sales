@@ -1,0 +1,34 @@
+{% extends 'main/base.html' %}
+
+
+{% block title %}
+    Sale
+{% endblock title %}
+    
+
+{% block content %}
+{% include 'main/include/hero.html' %}
+
+{% if products %}
+    
+
+    
+<section>
+    <div class="section-title">
+        <h3><a href="{% url 'home' %}">Home</a></h3>
+        <h3>Products on sale</h3>
+    </div>
+    <div class= "product-container">
+        {% for product in products %}
+                {% include 'store/include/product_card.html' %}
+        {% endfor %}
+    </div>
+</section>
+
+{% else %}
+<div class= "product-container">
+<h1>No sale</h1>
+</div>
+{% endif %}
+{% endblock content %}
+    

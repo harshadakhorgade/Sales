@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+    {% block title %}
+        
+    {% endblock title %}
+        </title>
+    <link rel="stylesheet" href="{% static 'css/admin_portal/admin_portal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_portal/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_portal/product_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_portal/inventory.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toast.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+        // Immediately hide old alert messages as soon as possible
+        (function() {
+            function hideAlertMessages() {
+                const alertMessages = document.querySelectorAll('.alert-message');
+                alertMessages.forEach(function(element) {
+                    element.style.display = 'none';
+                    element.style.visibility = 'hidden';
+                    element.style.opacity = '0';
+                    element.style.position = 'absolute';
+                    element.style.left = '-9999px';
+                });
+            }
+            
+            // Hide immediately if DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', hideAlertMessages);
+            } else {
+                hideAlertMessages();
+            }
+            
+            // Also hide after a short delay to catch any dynamically added messages
+            setTimeout(hideAlertMessages, 50);
+        })();
+    </script>
+</head>
+<body>
+    <div class="admin-dashboard">
+        {% include 'admin_portal/navbar.html' %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert-message" data-message-type="{{ message.tags|default:'info' }}">
+            {{ message }}
+            <p class="close-message">&times;</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+    {% block content %}
+        
+    {% endblock content %}
+    
+    </div>
+
+    <script src="{% static 'js/toast.js' %}"></script>
+    <script>
+        $(document).on('click', '.close-message', function() {
+        // Get the parent element (alert-message) of the clicked close button
+        var message = $(this).parent('.alert-message');
+        // Hide the message
+        message.hide();
+    });
+    </script>
+</body>
+</html>

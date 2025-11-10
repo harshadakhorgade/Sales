@@ -1,0 +1,44 @@
+# Environment files
+.env
+.env.*
+/env
+/.env
+
+# Django stuff:
+*.log
+*.pot
+*.py[cod]
+instance/
+db.sqlite3
+media/
+staticfiles/
+
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# OS-specific files
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Distribution / packaging
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+*.whl
+
+# mypy
+.mypy_cache/
+.dmypy.json

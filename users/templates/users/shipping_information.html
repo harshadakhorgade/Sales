@@ -1,0 +1,30 @@
+{% comment %} {% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}
+    shipping address
+{% endblock title %}
+    
+
+
+{% block content %}
+<!-- Register form -->
+<div class="form-container">
+    <form action="{% url 'shipping_info' %}" method="post" class="register-form">
+        {% csrf_token %}
+        
+        <div class="login-container">
+            {{ form }}
+            <button type="submit">Update Details</button>
+        </div>
+        <div class="login-container">
+            <button type="button" class="cancelbtn" id="cancel-signup-button"><a href="{% url 'home' %}">Cancel</a></button>
+            
+        </div>
+    </form>
+    <div style="margin-top: 20px;">
+        <a href="{% url 'user_profile' %}">← Back to Profile</a>
+    </div>
+</div>
+{% endblock content %}
+     {% endcomment %}

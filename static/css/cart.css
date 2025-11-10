@@ -1,0 +1,146 @@
+.cart-container {
+    width: 100%;
+    margin: 0 auto;
+    background-color: aliceblue;
+}
+
+.cart-container .continue-shopping button {
+    padding: .8em 1em;
+}
+
+.cart-container .checkout button {
+    padding: .5em 1em;
+}
+
+table {
+    width: 100%;
+    text-align: left;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+    padding: .5em 2em;
+    margin-bottom: 2em;
+}
+
+table .checkout {
+    text-align: right;
+}
+
+.cart-elements-container {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 1px 6px 0 rgba(0, 0, 0, 0.2);
+    padding: 0 .5em;
+}
+
+.cart-element-header, .cart-element{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    text-align: center;
+}
+
+.cart-element-header {
+    padding: .5em 0;
+}
+
+.cart-element {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2); 
+}
+
+.cart-item-image {
+    flex: 15%;
+}
+
+.cart-item-name {
+    flex: 25%;
+}
+
+.cart-item-quantity, .cart-item-price, .cart-item-total, .cart-item-remove{
+    flex: 15%;
+}
+
+
+
+
+/* Responsive Cart Styles */
+@media (max-width: 768px) {
+    .cart-container {
+        width: 100%;
+        padding: 0.5rem;
+    }
+    
+    table {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .cart-element-header,
+    .cart-element {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .cart-item-image {
+        flex: none;
+        width: 100%;
+        max-width: 150px;
+        margin: 0 auto;
+    }
+    
+    .cart-item-name {
+        flex: none;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .cart-item-quantity,
+    .cart-item-price,
+    .cart-item-total,
+    .cart-item-remove {
+        flex: none;
+        width: 100%;
+        text-align: center;
+        margin: 0.25rem 0;
+    }
+    
+    .cart-item-quantity button {
+        margin: 0 0.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .cart-item-remove button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-container {
+        padding: 0.25rem;
+    }
+    
+    table {
+        padding: 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .cart-element-header,
+    .cart-element {
+        padding: 0.25rem;
+    }
+    
+    .cart-item-image {
+        max-width: 120px;
+    }
+    
+    .cart-item-quantity button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .cart-item-remove button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}

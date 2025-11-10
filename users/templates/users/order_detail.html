@@ -1,0 +1,155 @@
+{% extends 'main/base.html' %}
+{% block title %}
+    Order Details
+{% endblock title %}
+{% block content %}
+<div class="container">
+    <div class="content">
+        <div class="main-content">
+            <!-- Order Header -->
+            <section class="order-header">
+                <div class="header-card">
+                    <div class="header-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <polyline points="17,11 19,13 23,9"/>
+                        </svg>
+                    </div>
+                    <div class="header-info">
+                        <h1>Order #{{ order.id }}</h1>
+                        <p>Placed on {{ order.date_ordered|date:"F d, Y \a\t g:i A" }}</p>
+                    </div>
+                    <div class="header-status">
+                        {% if order.is_delivered %}
+                                            <span class="status-badge delivered">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M20 6L9 17l-5-5"/>
+                                                </svg>
+                                                Delivered
+                                            </span>
+                                        {% elif order.is_shipped %}
+                                            <span class="status-badge shipped">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M20 6L9 17l-5-5"/>
+                                                </svg>
+                                                Shipped
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge pending">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <polyline points="12,6 12,12 16,14"/>
+                                                </svg>
+                                                Pending
+                                            </span>
+                                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Order Content Grid -->
+            <div class="order-content-grid">
+                <!-- Order Items Section -->
+                <section class="order-items-section">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.35 2.65M7 13h10"/>
+                                </svg>
+                                <h3>Order Items</h3>
+                            </div>
+                            <span class="items-count">{{ order.items.all.count }} item{{ order.items.all.count|pluralize }}</span>
+                        </div>
+                        
+                        <div class="items-list">
+                            {% for item in order.items.all %}
+                                <div class="item-card">
+                                    <div class="item-info">
+                                        <h4 class="item-title">{{ item.product.name }}</h4>
+                                        <div class="item-details">
+                                            <span class="quantity">Qty: {{ item.quantity }}</span>
+                                            <span class="unit-price">₹{{ item.price }} each</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-total">
+                                        <span class="total-amount">₹{{ item.price|floatformat:2 }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Order Summary Section -->
+                <section class="order-summary-section">
+                    <!-- Shipping Address -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                <h3>Shipping Address</h3>
+                            </div>
+                        </div>
+                        <div class="address-content">
+                            <div class="address-text">{{ order.shipping_address|linebreaks }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Order Total -->
+                    <div class="section-card total-card">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                    <line x1="1" y1="10" x2="23" y2="10"/>
+                                </svg>
+                                <h3>Order Summary</h3>
+                            </div>
+                        </div>
+                        <div class="total-breakdown">
+                            <div class="total-row">
+                                <span>Subtotal</span>
+                                <span>₹{{ order.amount_paid }}</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Shipping</span>
+                                <span>Free</span>
+                            </div>
+                            <div class="total-row final-total">
+                                <span>Total Paid</span>
+                                <span>₹{{ order.amount_paid }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Back Button -->
+            <section class="order-actions">
+                <a href="{% url 'order_history' %}" class="back-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5m7-7l-7 7 7 7"/>
+                    </svg>
+                    Back to Order History
+                </a>
+
+                <!-- View Invoice Button Styled Like Back Button -->
+
+                <!-- View Invoice Button -->
+                <a href="{% url 'view_invoice' order.id %}" target="_blank" class="view-invoice-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14m7-7H5"/>
+                    </svg>
+                    View Invoice
+                </a>
+            </section>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

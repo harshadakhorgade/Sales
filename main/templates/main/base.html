@@ -1,0 +1,163 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}{% endblock title %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/hero.css' %}">
+    <link rel="stylesheet" href="{% static 'css/product_card.css' %}">
+    <link rel="stylesheet" href="{% static 'css/product.css' %}">
+    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+    <link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+    <link rel="stylesheet" href="{% static 'css/user_profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/order_history.css' %}">
+    <link rel="stylesheet" href="{% static 'css/order_detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toast.css' %}">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+        // Immediately hide old alert messages as soon as possible
+        (function() {
+            function hideAlertMessages() {
+                const alertMessages = document.querySelectorAll('.alert-message');
+                alertMessages.forEach(function(element) {
+                    element.style.display = 'none';
+                    element.style.visibility = 'hidden';
+                    element.style.opacity = '0';
+                    element.style.position = 'absolute';
+                    element.style.left = '-9999px';
+                });
+            }
+            
+            // Hide immediately if DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', hideAlertMessages);
+            } else {
+                hideAlertMessages();
+            }
+            
+            // Also hide after a short delay to catch any dynamically added messages
+            setTimeout(hideAlertMessages, 50);
+        })();
+    </script>
+</head>
+<body>
+    <div class="body-container">
+    {% include 'main/include/navbar.html' %}
+    <div class="container">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert-message" data-message-type="{{ message.tags|default:'info' }}">
+            {{ message }}
+            <p class="close-message">&times;</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        
+    {% block content %}
+        
+    {% endblock content %}
+    </div>
+    {% include 'main/include/footer.html' %}
+    </div>
+
+    
+    <script src="{% static 'js/navbar.js' %}"></script>
+    <script src="{% static 'js/toast.js' %}"></script>
+    <script>
+        // Test toast system on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, testing toast system...');
+            
+            // Test if toast system is working
+            setTimeout(function() {
+                if (typeof testToast === 'function') {
+                    console.log('Toast system is available');
+                    // Uncomment the line below to test toasts automatically
+                    // testToast();
+                } else {
+                    console.error('Toast system not available');
+                }
+                
+                // Also test manual toast creation
+                if (typeof showSuccess === 'function') {
+                    console.log('Manual toast functions available');
+                    // Uncomment the line below to test manual toast creation
+                    // showSuccess('Test message from base template!');
+                } else {
+                    console.error('Manual toast functions not available');
+                }
+            }, 1000);
+        });
+    </script>
+    <script>
+        $(document).on('click', '.add-to-cart', function(e){
+            e.preventDefault();
+            var productId = $(this).val(); // Get the value of the clicked button (which is the specific product ID)
+            var productQty;
+    
+            // Check if the quantity input is present in the current context (product page)
+            if ($(this).closest('.quantity').find('input[type="number"]').length) {
+                productQty = $(this).closest('.quantity').find('input[type="number"]').val();
+            } else {
+                // If the quantity input is not found, default to 1 (home page)
+                productQty = 1;
+            }
+            
+            $.ajax({
+                type: 'POST',
+                url: '{% url "cart_add" %}',
+                data: {
+                    product_id: productId,
+                    product_qty: productQty,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    action: 'post'
+                },
+                success: function(json){
+                    $('.cart-quantity').text(json.qty);
+                    location.reload();
+                },
+                error: function(xhr, errmsg, err){
+                    console.error('Cart update failed:', errmsg);
+                    
+                    // Check if it's an authentication error
+                    if (xhr.status === 401) {
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.login_required) {
+                                // Redirect to login page
+                                window.location.href = response.login_url + '?next=' + encodeURIComponent(window.location.pathname);
+                                return;
+                            }
+                        } catch (e) {
+                            // If JSON parsing fails, fall back to regular redirect
+                            window.location.href = '/users/login/?next=' + encodeURIComponent(window.location.pathname);
+                            return;
+                        }
+                    }
+                    
+                    // For other errors, show alert
+                    alert('Failed to add item to cart. Please try again.');
+                }
+            });
+        });
+
+
+        $(document).on('click', '.close-message', function() {
+        // Get the parent element (alert-message) of the clicked close button
+        var message = $(this).parent('.alert-message');
+        // Hide the message
+        message.hide();
+    });
+
+    
+    </script>
+       
+</body>
+</html>

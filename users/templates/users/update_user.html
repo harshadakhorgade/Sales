@@ -1,0 +1,42 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}
+    Update User Details
+{% endblock title %}
+
+{% block content %}
+<!-- Update form -->
+<div class="form-container">
+    <form action="{% url 'update_user' %}" method="post" enctype="multipart/form-data" class="register-form">
+        {% csrf_token %}
+
+        <div class="img">
+            <span id="close-signup-form" class="close"><a href="{% url 'home' %}">&times;</a></span>
+
+            <!-- Display current profile picture -->
+            {% if user.profile.image %}
+                <img src="{{ user.profile.image.url }}" alt="Current Profile Picture" class="profile-img" width="20%">
+            {% else %}
+                <img src="{% static 'images/avatar.png' %}" alt="Default Avatar" class="profile-img" width="20%">
+            {% endif %}
+        </div>
+
+        <div class="login-container">
+            {{ user_form.as_p }}
+
+            <button type="submit">Update Details</button>
+
+            <a href="{% url 'update_password' %}">
+                <button type="button">Update Password</button>
+            </a>
+        </div>
+
+        <div class="login-container">
+            <a href="{% url 'home' %}">
+                <button type="button" class="cancelbtn">Cancel</button>
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock content %}

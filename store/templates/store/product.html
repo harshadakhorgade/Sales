@@ -1,0 +1,161 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}
+    Product Details
+{% endblock title %}
+
+{% block content %}
+<div class="product-page-container">
+    <div class="product-image-card">
+        <div class="back_home">
+            <a href="{% url 'home' %}"><button>&larr; Back to Home</button></a>
+        </div>
+
+        <div class="product-profile-image">
+            <img id="main-product-image" src="{{ product.imageURL }}" alt="{{ product.name }}" width="100%">
+        </div>
+
+        <div class="product-images-container">
+            <button class="scroll-button left" onclick="scrollImages(-1)">&#10094;</button>
+            <div class="product-images">
+                {% for image in product_images %}
+                <div class="product-image-container">
+                    <div class="image">
+                        <img src="{{ image.imageURL }}" alt="{{ product.name }}" width="100%" onclick="updateMainImage('{{ image.imageURL }}')">
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="scroll-button right" onclick="scrollImages(1)">&#10095;</button>
+        </div>
+    </div>
+
+    <div class="product-page-information">
+        <h3>{{ product.name }}</h3>
+        {% if product.is_sale %}
+        <h4>Price: <del>Rs.{{ product.price }}</del> ${{ product.sale_price }}</h4>
+        {% else %}
+        <h4>Price: Rs.{{ product.price }}</h4>
+        {% endif %}
+
+        <p>{{ product.description }}</p>
+        
+        {% if product.color %}
+        <p>Color: <span style="color: blue;">{{ product.color }}</span></p>
+        {% endif %}
+            
+        
+
+
+        
+        <div class="info">
+            <p style="color: red;">
+                {% if stock_quantity >= 5 %}
+                    We have {{ stock_quantity }} items available
+                {% elif stock_quantity >= 1 %}
+                    Only {{ stock_quantity }} item{% if stock_quantity != 1 %}s{% endif %} left
+                {% else %}
+                    Item out of stock!!!
+                {% endif %}
+            </p>
+        </div>
+
+        {% if product.in_stock %}
+        <div class="quantity">
+            <p>Quantity:  
+            <span><input type="number" value="1" min="1" max="{{ stock_quantity }}" id="quantity" style="min-height: 44px; font-size: 16px;"></span>
+            </p>
+            <button type="button" value="{{ product.id }}" id="add-cart" class="add-to-cart" style="min-height: 48px; font-size: 16px;">Add to Cart</button>
+        </div>
+        {% else %}
+        <button>Enquire availability</button>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function updateMainImage(imageUrl) {
+        document.getElementById('main-product-image').src = imageUrl;
+    }
+
+    function scrollImages(direction) {
+        const container = document.querySelector('.product-images');
+        const scrollAmount = container.clientWidth / 3 * direction;
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+
+
+</script>
+
+<style>
+.product-images-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 0 2em 0 2em;
+}
+
+.product-image-container {
+    min-width: 6rem;
+    margin-right: .2em;
+    margin-left: .2em;
+}
+
+.product-images {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    white-space: nowrap;
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+
+.product-images::-webkit-scrollbar { 
+    display: none;  
+}
+
+.image {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.image img {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.image img:hover {
+    transform: scale(1.1);
+    border: 1px solid black;
+}
+
+.scroll-button {
+    background-color: rgb(255, 255, 255);
+    border: none;
+    color: green;
+    font-size: 1.1rem;
+    padding: .6em;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    height: 100%;
+}
+
+.scroll-button:hover {
+    color: orange;
+}
+
+.scroll-button.left {
+    left: 0;
+}
+
+.scroll-button.right {
+    right: 0;
+}
+</style>
+{% endblock content %}
