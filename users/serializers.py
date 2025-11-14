@@ -65,10 +65,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 
-
-# users/serializers.py
 from rest_framework import serializers
 from .models import BankingDetails
+
 
 class BankingDetailsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -81,7 +80,4 @@ class BankingDetailsSerializer(serializers.ModelSerializer):
             'contact_type',
             'account_number',
             'ifsc_code',
-            'razorpay_contact_id',
-            'razorpay_fund_account_id',
         ]
-        read_only_fields = ['razorpay_contact_id', 'razorpay_fund_account_id']

@@ -1,3 +1,5 @@
+
+
 {% extends 'main/base.html' %}
 
 {% block title %}
@@ -66,7 +68,8 @@
 
                         </div>
                         <div class="stat-content">
-                            <h3>Rs. 0.00</h3>
+                            <h3>Rs. {{ total_earnings|floatformat:2 }}</h3>
+
                             <p>Total Earnings</p>
                         </div>
                     </div>

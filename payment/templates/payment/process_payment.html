@@ -1,78 +1,55 @@
 {% extends 'main/base.html' %}
-{% block title %}Make Payment{% endblock %}
+
+{% block title %}QR Payment{% endblock title %}
+
+{% load static %}
+
 {% block content %}
-{% csrf_token %}
+<div class="container">
+  <h3>Scan QR and Upload Proof</h3>
+  <p>Scan the QR code using your phone's bank/UPI app and complete the payment. After paying, either take a screenshot or use your camera to capture the payment success screen and upload it below. Optionally, enter the transaction/UTR ID.</p>
+ <div class="qr-preview">
+    <img src="{% static 'images/payment_qr.jpeg' %}" alt="Scan QR to pay" style="max-width:320px;">
+    <p>Amount: ₹ {{ amount }}</p>
+  </div>
+
+  <form method="post" action="{% url 'payment_execute' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="payment_method" value="qr">
+
+      <div class="form-group">
+    <label for="transaction_id">Transaction / UTR ID</label>
+    <input type="text" name="transaction_id" id="transaction_id" class="form-control" required>
+      </div>
 
 
-<div class="checkout-container">
-    <div class="order-summary">
-        <div class="back-to-cart">
-            <a href="{% url 'checkout' %}"><button>&larr; Back to Checkout</button></a>
-        </div>
-        <div class="cart-elements-container">
-            <h3>Processing Payment</h3>
-            <hr>
-            <p><b>Name:</b> {{ user.first_name }} {{ user.last_name }} &nbsp;&nbsp; <b>Email: </b> {{ user.email }}</p>
-            <p><b>Order ID :</b> {{ order_id }}</p>
-            <p><b>Amount :</b> ₹{{ amount_rupees|floatformat:2 }}</p>
-            <hr>
-            <button id="rzp-button">Pay</button>
-        </div>
+    <div class="form-group">
+      <label for="payment_proof">Upload screenshot or take photo</label>
+      <input type="file" name="payment_proof" id="payment_proof" accept="image/*" capture="environment" class="form-control">
+      <small class="form-text text-muted">You can use camera on mobile (permission required) or upload from gallery.</small>
+      <div id="preview" style="margin-top:10px;"></div>
     </div>
+
+    <button type="submit" class="btn btn-success mt-2">Confirm Payment / Paid</button>
+  </form>
 </div>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
-    var options = {
-        "key": "{{ razorpay_key_id }}",
-        "amount": "{{ amount_paise }}",  // Amount in paise (required by Razorpay)
-        "currency": "{{ currency }}",
-        "name": "SALES AND SERVICE",
-        "description": "Order Payment",
-        "order_id": "{{ order_id }}",
-        "handler": function (response) {
-                var form = document.createElement('form');
-                form.setAttribute('method', 'post');
-                form.setAttribute('action', "{% url 'payment_execute' %}");
-
-                var csrfToken = "{{ csrf_token }}";
-                var csrfInput = document.createElement('input');
-                csrfInput.setAttribute('type', 'hidden');
-                csrfInput.setAttribute('name', 'csrfmiddlewaretoken');
-                csrfInput.setAttribute('value', csrfToken);
-                form.appendChild(csrfInput);
-
-                var fields = {
-                    'razorpay_payment_id': response.razorpay_payment_id,
-                    'razorpay_order_id': response.razorpay_order_id,
-                    'razorpay_signature': response.razorpay_signature
-                };
-
-                for (var key in fields) {
-                    if (fields.hasOwnProperty(key)) {
-                        var input = document.createElement('input');
-                        input.setAttribute('type', 'hidden');
-                        input.setAttribute('name', key);
-                        input.setAttribute('value', fields[key]);
-                        form.appendChild(input);
-                    }
-                }
-
-                document.body.appendChild(form);
-                form.submit();
-            },
-        "prefill": {
-            "name": "{{ user.first_name }} {{ user.last_name }}",
-            "email": "{{ user.email }}"
-        },
-        "theme": {
-            "color": "#F37254"
-        }
-    };
-    var rzp1 = new Razorpay(options);
-    document.getElementById('rzp-button').onclick = function (e) {
-        rzp1.open();
-        e.preventDefault();
-    };
+  // simple preview for uploaded image
+  const input = document.getElementById('payment_proof');
+  const preview = document.getElementById('preview');
+  if (input) {
+    input.addEventListener('change', function(e) {
+      preview.innerHTML = '';
+      const file = this.files[0];
+      if (file) {
+        const img = document.createElement('img');
+        img.style.maxWidth = '240px';
+        img.style.marginTop = '8px';
+        img.src = URL.createObjectURL(file);
+        preview.appendChild(img);
+      }
+    });
+  }
 </script>
-
-{% endblock %}
+{% endblock content %}

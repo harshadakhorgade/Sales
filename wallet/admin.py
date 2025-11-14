@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Wallet, WalletTransaction ,Payout
+from .models import Wallet, WalletTransaction, Payout
 
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin):
@@ -15,11 +15,10 @@ class WalletTransactionAdmin(admin.ModelAdmin):
 @admin.register(Payout)
 class PayoutAdmin(admin.ModelAdmin):
     list_display = [
-        'user', 
-        'amount', 
-        'status', 
-        'transaction_id', 
+        'user',
+        'amount',
+        'status',
         'created_at'
     ]
-    search_fields = ['user__username', 'transaction_id']
+    search_fields = ['user__username']
     list_filter = ['status', 'created_at']

@@ -33,6 +33,16 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id}"
+    
+    @property
+    def is_payment_confirmed(self):
+        # Check if any related payment is captured
+        payment = getattr(self, 'payments', None)
+        if payment:
+            payment_obj = self.payments.first()  # assuming 1 payment per order
+            if payment_obj and payment_obj.status == 'captured':
+                return True
+        return False
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)

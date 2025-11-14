@@ -21,29 +21,29 @@
                         <p>Placed on {{ order.date_ordered|date:"F d, Y \a\t g:i A" }}</p>
                     </div>
                     <div class="header-status">
+                        {% if order.payment_status == "Pending" %}
+                            <span class="status-badge pending">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                                Payment Pending
+                            </span>
+                        {% elif order.payment_status == "Paid" %}
+                            <span class="status-badge delivered">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Payment Confirmed
+                            </span>
+                        {% endif %}
+
+                        {% if order.is_shipped %}
+                            <span class="status-badge shipped">Shipped</span>
+                        {% endif %}
                         {% if order.is_delivered %}
-                                            <span class="status-badge delivered">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M20 6L9 17l-5-5"/>
-                                                </svg>
-                                                Delivered
-                                            </span>
-                                        {% elif order.is_shipped %}
-                                            <span class="status-badge shipped">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M20 6L9 17l-5-5"/>
-                                                </svg>
-                                                Shipped
-                                            </span>
-                                        {% else %}
-                                            <span class="status-badge pending">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <circle cx="12" cy="12" r="10"/>
-                                                    <polyline points="12,6 12,12 16,14"/>
-                                                </svg>
-                                                Pending
-                                            </span>
-                                        {% endif %}
+                            <span class="status-badge delivered">Delivered</span>
+                        {% endif %}
                     </div>
                 </div>
             </section>
@@ -55,14 +55,10 @@
                     <div class="section-card">
                         <div class="section-header">
                             <div class="section-title">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.35 2.65M7 13h10"/>
-                                </svg>
                                 <h3>Order Items</h3>
                             </div>
                             <span class="items-count">{{ order.items.all.count }} item{{ order.items.all.count|pluralize }}</span>
                         </div>
-                        
                         <div class="items-list">
                             {% for item in order.items.all %}
                                 <div class="item-card">
@@ -87,29 +83,29 @@
                     <!-- Shipping Address -->
                     <div class="section-card">
                         <div class="section-header">
-                            <div class="section-title">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                    <circle cx="12" cy="10" r="3"/>
-                                </svg>
-                                <h3>Shipping Address</h3>
-                            </div>
+                            <h3>Shipping Address</h3>
                         </div>
                         <div class="address-content">
                             <div class="address-text">{{ order.shipping_address|linebreaks }}</div>
                         </div>
                     </div>
 
+                    <!-- Payment Proof -->
+                    {% if order.payment_status == "Pending" and order.payment.payment_proof %}
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h3>Payment Proof</h3>
+                            </div>
+                            <div class="payment-proof">
+                                <img src="{{ order.payment.payment_proof.url }}" alt="Payment Proof" class="proof-image"/>
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <!-- Order Total -->
                     <div class="section-card total-card">
                         <div class="section-header">
-                            <div class="section-title">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                                    <line x1="1" y1="10" x2="23" y2="10"/>
-                                </svg>
-                                <h3>Order Summary</h3>
-                            </div>
+                            <h3>Order Summary</h3>
                         </div>
                         <div class="total-breakdown">
                             <div class="total-row">
@@ -131,25 +127,13 @@
 
             <!-- Back Button -->
             <section class="order-actions">
-                <a href="{% url 'order_history' %}" class="back-button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5m7-7l-7 7 7 7"/>
-                    </svg>
-                    Back to Order History
-                </a>
+                <a href="{% url 'order_history' %}" class="back-button">Back to Order History</a>
 
-                <!-- View Invoice Button Styled Like Back Button -->
-
-                <!-- View Invoice Button -->
-                <a href="{% url 'view_invoice' order.id %}" target="_blank" class="view-invoice-button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14m7-7H5"/>
-                    </svg>
-                    View Invoice
-                </a>
+                {% if order.payment_status == "Paid" %}
+                    <a href="{% url 'view_invoice' order.id %}" target="_blank" class="view-invoice-button">View Invoice</a>
+                {% endif %}
             </section>
         </div>
     </div>
 </div>
-
 {% endblock %}

@@ -35,7 +35,14 @@
                                         <span class="order-date">{{ order.date_ordered|date:"d M Y" }}</span>
                                     </div>
                                     <div class="order-status">
-                                        {% if order.is_delivered %}
+                                        {% if order.is_payment_confirmed %}
+                                            <span class="status-badge delivered">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M20 6L9 17l-5-5"/>
+                                                </svg>
+                                                Payment Confirmed
+                                            </span>
+                                        {% elif order.is_delivered %}
                                             <span class="status-badge delivered">
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <path d="M20 6L9 17l-5-5"/>
@@ -55,7 +62,7 @@
                                                     <circle cx="12" cy="12" r="10"/>
                                                     <polyline points="12,6 12,12 16,14"/>
                                                 </svg>
-                                                Pending
+                                                Pending Payment
                                             </span>
                                         {% endif %}
                                     </div>
@@ -75,6 +82,15 @@
                                             </svg>
                                             View Details
                                         </a>
+
+                                        {% if order.is_payment_confirmed %}
+                                            <a href="{% url 'view_invoice' order.id %}" target="_blank" class="action-button secondary">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 5v14m7-7H5"/>
+                                                </svg>
+                                                View Invoice
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -103,6 +119,4 @@
         </div>
     </div>
 </div>
-
-
 {% endblock %}

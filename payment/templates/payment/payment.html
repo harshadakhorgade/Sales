@@ -1,4 +1,3 @@
-
 {% extends 'main/base.html' %}
 
 {% block title %}
@@ -35,12 +34,12 @@
         </div>
         <br>
         <div class="shipping-information">
-            <h4>Shipping Information</h4>
+            <h4>Shipping & Payment</h4>
            <form method="post" action="{% url 'process_payment' %}">
                 {% csrf_token %}
 
-                <!-- Add radio buttons for selecting payment method -->
-                <label><input type="radio" name="payment_method" value="razorpay" checked> Razorpay</label><br>
+                <!-- Payment method options: QR and Wallet -->
+                <label><input type="radio" name="payment_method" value="qr" checked> Pay using QR (Scan and upload screenshot)</label><br>
                 <label><input type="radio" name="payment_method" value="wallet"> Wallet</label><br><br>
 
                 <button type="submit" id="proceed-payment-btn">Proceed to Payment</button>

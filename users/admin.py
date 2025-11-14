@@ -1,16 +1,21 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Profile, ShippingAddress ,BankingDetails 
+from .models import CustomUser, Profile, ShippingAddress, BankingDetails
 
 
+# ---------------------------
+# ✅ CustomUser Admin
+# ---------------------------
+@admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = CustomUser
 
-    list_display = ("id",
-        "first_name", "last_name", "email", "unique_id", "get_parent_sponsor", "get_parent_node", 
+    list_display = (
+        "id", "first_name", "last_name", "email", "unique_id",
+        "get_parent_sponsor", "get_parent_node",
         "is_staff", "is_active", "last_login", "date_joined"
     )
     list_filter = ("email", "is_staff", "is_active", "parent_sponsor")
@@ -29,10 +34,12 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-    search_fields = ("email", "first_name", "last_name", "unique_id", "parent_sponsor__email", "parent_node__email")
+    search_fields = (
+        "email", "first_name", "last_name", "unique_id",
+        "parent_sponsor__email", "parent_node__email"
+    )
     ordering = ("email",)
     filter_horizontal = ("groups", "user_permissions",)
-    
     readonly_fields = ("id", "unique_id", "last_login", "date_joined",)
 
     def get_parent_sponsor(self, obj):
@@ -52,11 +59,15 @@ class CustomUserAdmin(UserAdmin):
         obj.save()
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
-
-
+# ---------------------------
+# ✅ Profile Admin
+# ---------------------------
+@admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('id','user', 'get_unique_id', 'get_parent_node', 'phone', 'address1', 'city', 'state', 'zipcode', 'country', 'old_cart')
+    list_display = (
+        'id', 'user', 'get_unique_id', 'get_parent_node',
+        'phone', 'address1', 'city', 'state', 'zipcode', 'country', 'old_cart'
+    )
     search_fields = ('user__email', 'user__first_name', 'user__last_name', 'user__parent_node__email')
 
     def get_unique_id(self, obj):
@@ -70,29 +81,28 @@ class ProfileAdmin(admin.ModelAdmin):
     get_parent_node.short_description = 'Parent Node'
 
 
-admin.site.register(Profile, ProfileAdmin)
-
-
+# ---------------------------
+# ✅ Shipping Address Admin
+# ---------------------------
+@admin.register(ShippingAddress)
 class ShippingAddressAdmin(admin.ModelAdmin):
     list_display = ('user', 'phone', 'full_name', 'email', 'address1', 'city', 'state', 'zipcode', 'country')
     search_fields = ('user__email', 'user__first_name', 'user__last_name')
 
 
-admin.site.register(ShippingAddress, ShippingAddressAdmin)
-
+# ---------------------------
+# ✅ Banking Details Admin (No Razorpay Fields)
+# ---------------------------
 @admin.register(BankingDetails)
 class BankingDetailAdmin(admin.ModelAdmin):
     list_display = [
-        'user', 
-        'account_holder_name', 
-        'account_number', 
-        'ifsc_code', 
-        'email', 
-        'phone_number', 
-        'contact_type', 
-        'razorpay_contact_id', 
-        'razorpay_fund_account_id',
+        'user',
+        'account_holder_name',
+        'account_number',
+        'ifsc_code',
+        'email',
+        'phone_number',
+        'contact_type',
     ]
     search_fields = ['user__username', 'account_holder_name', 'email', 'phone_number']
     list_filter = ['contact_type']
-

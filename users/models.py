@@ -101,15 +101,11 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return f'Shipping Address - {str(self.id)}'
+from django.conf import settings
+from django.db import models
 
-# users/models.py
-
-from django.conf import settings  # Already imported
-# REMOVE this line:
-# from django.contrib.auth.models import User
 
 class BankingDetails(models.Model):
-    # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     account_holder_name = models.CharField(max_length=100)
@@ -117,10 +113,11 @@ class BankingDetails(models.Model):
     ifsc_code = models.CharField(max_length=20)
     email = models.EmailField()
     phone_number = models.CharField(max_length=15)
-    contact_type = models.CharField(max_length=20)
-    razorpay_contact_id = models.CharField(max_length=100, blank=True, null=True)
-    razorpay_fund_account_id = models.CharField(max_length=100, blank=True, null=True)
+    contact_type = models.CharField(max_length=20, help_text="e.g. Savings, Current, etc.")
 
+    # Removed Razorpay-related fields (not needed for QR-based/manual payment)
+    # razorpay_contact_id = models.CharField(max_length=100, blank=True, null=True)
+    # razorpay_fund_account_id = models.CharField(max_length=100, blank=True, null=True)
 
-
-
+    def __str__(self):
+        return f"{self.user.email} - {self.account_holder_name}"
