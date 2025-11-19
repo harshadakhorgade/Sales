@@ -28,43 +28,40 @@ def wallet_transactions_view(request):
         except (TypeError, ValueError):
             return JsonResponse({"error": "Invalid amount"}, status=400)
 
+        upi_id = request.POST.get("upi_id")
+        if not upi_id:
+            return JsonResponse({"error": "UPI ID is required"}, status=400)
+
         request_id = request.POST.get('request_id') or str(uuid.uuid4())
 
-        # Prevent duplicate requests
+        # Prevent duplicates
         if Payout.objects.filter(transaction_id=request_id).exists():
-            messages.warning(request, "This withdrawal request was already processed.")
+            messages.warning(request, "This withdrawal request already exists.")
             return redirect('wallet_transactions')
 
         with transaction.atomic():
+
             wallet = Wallet.objects.select_for_update().get(user=user)
 
+            # Check available balance but DO NOT deduct here
             if wallet.balance < amount:
                 return JsonResponse({"error": "Insufficient wallet balance."}, status=400)
 
-            # Deduct from wallet
-            wallet.balance -= amount
-            wallet.save()
-
-            # Record wallet transaction
-            WalletTransaction.objects.create(
-                wallet=wallet,
-                transaction_type='debit',
-                amount=amount,
-                description=f'Payout request initiated for ₹{amount}'
-            )
-
-            # Save payout request
+            # Create payout request
             Payout.objects.create(
                 user=user,
+                upi_id=upi_id,
                 amount=amount,
-                status='Pending',  # Admin will later mark as "Completed"
+                status='pending',
                 transaction_id=request_id
             )
 
-        messages.success(request, f'Withdrawal request of ₹{amount} submitted successfully. '
-                                  f'Please wait for admin approval.')
-
+        messages.success(
+            request,
+            f"Withdrawal request of ₹{amount} submitted successfully. Waiting for admin approval."
+        )
         return redirect('wallet_transactions')
+
 
     # GET request
     try:

@@ -6,48 +6,150 @@
 
 {% block content %}
 {% if cart_items %}
+
 <div class="checkout-container">
+
+    <!-- ORDER SUMMARY LEFT SIDE -->
     <div class="order-summary">
         <div class="back-to-cart">
-            <a href="{% url 'checkout' %}"><button>&larr; Back to Checkout</button></a>
+            <a href="{% url 'checkout' %}">
+                <button>&larr; Back to Checkout</button>
+            </a>
         </div>
+
         <div class="cart-elements-container">
             <h3>Order Summary</h3>
             <hr>
+
             <div class="cart-element">
                 {% for item in cart_items %}
-                <div class="cart-item-image"><img src="{{ item.imageURL }}" alt="" width="60%"></div>
+                <div class="cart-item-image">
+                    <img src="{{ item.imageURL }}" alt="" width="60%">
+                </div>
+
                 <div class="cart-item-name">{{ item.name }}</div>
                 <div class="cart-item-price">x</div>
-                <div class="cart-item-quantity"><p>{{ item.quantity }}</p></div>
-                <div class="cart-item-total">₹ {{ item.total_price }}</div>
+
+                <div class="cart-item-quantity">
+                    <p>{{ item.quantity }}</p>
+                </div>
+
+                <div class="cart-item-total">
+                    ₹ {{ item.total_price }}
+                </div>
+
                 <div class="cart-item-remove"></div>
                 {% endfor %}
             </div>
+
             <p>Items: {{ total_quantity }}</p>
             <p>Amount: ₹{{ order_total }}</p>
         </div>
     </div>
+
+    <!-- SHIPPING & PAYMENT RIGHT SIDE -->
     <div class="customer-information">
+
         <div class="user-information">
-          <p><b>Name:</b> {{ user.first_name }} {{ user.last_name }} &nbsp;&nbsp; <b>Email: </b> {{ user.email }}</p>
+            <p>
+                <b>Name:</b> {{ user.first_name }} {{ user.last_name }}
+                &nbsp;&nbsp;
+                <b>Email:</b> {{ user.email }}
+            </p>
         </div>
+
         <br>
+
         <div class="shipping-information">
             <h4>Shipping & Payment</h4>
-           <form method="post" action="{% url 'process_payment' %}">
+
+            <!-- IMPORTANT: unique id on form -->
+            <form id="payment-form" method="post" action="{% url 'process_payment' %}">
                 {% csrf_token %}
 
-                <!-- Payment method options: QR and Wallet -->
-                <label><input type="radio" name="payment_method" value="qr" checked> Pay using QR (Scan and upload screenshot)</label><br>
-                <label><input type="radio" name="payment_method" value="wallet"> Wallet</label><br><br>
+                <!-- Payment method: QR -->
+                <label>
+                    <input type="radio" name="payment_method" value="qr" id="pm-qr" checked>
+                    Pay using QR (Scan and upload screenshot)
+                </label>
+                <br>
 
-                <button type="submit" id="proceed-payment-btn">Proceed to Payment</button>
+                <!-- Payment method: Wallet -->
+                <label>
+                    <input type="radio" name="payment_method" value="wallet" id="pm-wallet">
+                    Wallet
+                </label>
+
+                <br><br>
+
+                <!-- Inline confirm on the button (first line of defense) -->
+                <button type="submit" id="proceed-payment-btn"
+                        onclick="return (function(){ var sel = document.querySelector('input[name=payment_method]:checked'); if(sel && sel.value === 'wallet'){ return confirm('Are you sure you want to pay using your Wallet?'); } return true; })();">
+                    Proceed to Payment
+                </button>
             </form>
         </div>
+
     </div>
 </div>
+
 {% else %}
-<h1>You have no items in your cart... <a href="{% url 'home' %}">Continue shopping</a></h1>
+<h1>You have no items in your cart... 
+    <a href="{% url 'home' %}">Continue shopping</a>
+</h1>
 {% endif %}
 {% endblock content %}
+
+<!-- Robust JS: capture-phase submit listener + fallback -->
+<script>
+(function(){
+    // Run when DOM ready
+    function ready(fn){ if(document.readyState!='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+
+    ready(function(){
+        var form = document.getElementById('payment-form');
+        if(!form) return;
+
+        // 1) Protect submit at capture phase (catches other submit triggers)
+        document.addEventListener('submit', function(ev){
+            // only intercept submits coming from our form
+            var target = ev.target;
+            if(!target || target !== form) return; 
+
+            try {
+                var sel = target.querySelector("input[name='payment_method']:checked");
+                if(sel && sel.value === 'wallet') {
+                    var ok = confirm('Are you sure you want to pay using your Wallet?');
+                    if(!ok) {
+                        ev.preventDefault();
+                        ev.stopImmediatePropagation();
+                        // optional: focus wallet option to show user what to change
+                        var walletRadio = target.querySelector("#pm-wallet");
+                        if(walletRadio) walletRadio.focus();
+                        return false;
+                    }
+                }
+            } catch(err) {
+                // If anything weird happens, do not block (fail-safe)
+                console.error('Wallet confirm error:', err);
+            }
+        }, true); // useCapture = true
+
+        // 2) Extra guard: override form.submit to show confirm if someone calls it programmatically
+        var nativeSubmit = form.submit;
+        form.submit = function(){
+            try {
+                var sel = form.querySelector("input[name='payment_method']:checked");
+                if(sel && sel.value === 'wallet') {
+                    var ok = confirm('Are you sure you want to pay using your Wallet?');
+                    if(!ok) return; // do not submit
+                }
+            } catch(e) {
+                console.error(e);
+            }
+            // call native submit
+            nativeSubmit.call(form);
+        };
+    });
+})();
+</script>

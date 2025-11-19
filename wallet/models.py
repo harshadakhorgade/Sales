@@ -45,16 +45,18 @@ class Payout(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
 
-    # QR/manual payment support
-    payment_screenshot = models.ImageField(upload_to='payout_screenshots/', blank=True, null=True)
-    confirmation_note = models.TextField(blank=True, null=True)  # optional admin note
+    # NEW: UPI ID field
+    upi_id = models.CharField(max_length=100, blank=True, null=True)
 
+    payment_screenshot = models.ImageField(upload_to='payout_screenshots/', blank=True, null=True)
+    confirmation_note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Optional fee/tax fields for internal accounting
     fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     tax = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     final_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    transaction_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
 
     def __str__(self):
         return f"Payout of ₹{self.amount} for {self.user.email} - {self.status}"

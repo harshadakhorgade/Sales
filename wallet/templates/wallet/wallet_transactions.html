@@ -101,12 +101,20 @@
             <form method="post" class="withdrawal-form">
                 {% csrf_token %}
                 <input type="hidden" name="request_id" value="{{ request_id }}">
+
                 <div class="form-group">
                     <label for="amount">Withdrawal Amount:</label>
                     <input type="number" name="amount" step="0.01" min="1" max="{{ wallet.balance }}" placeholder="Enter amount" required>
                 </div>
+
+                <div class="form-group">
+                    <label for="upi_id">Your UPI ID:</label>
+                    <input type="text" name="upi_id" placeholder="example@upi" required>
+                </div>
+
                 <button type="submit" class="btn-withdraw">Withdraw Money</button>
             </form>
+
         {% else %}
             <div class="withdrawal-disabled">
                 <p style="color: #6c757d;">Please add your bank details first to withdraw money.</p>
@@ -114,6 +122,47 @@
             </div>
         {% endif %}
     </div>
+<!-- ✅ Payout Status List -->
+<div class="payout-section" style="margin-top: 2rem;">
+    <h2 style="color: #495057; margin-bottom: 1rem;">📤 Your Withdrawal Requests</h2>
+
+    {% if payouts %}
+        <div class="table-container">
+            <table class="transactions-table">
+                <thead>
+                    <tr>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payouts %}
+                        <tr>
+                            <td>₹{{ p.amount }}</td>
+
+                            <td>
+                                {% if p.status == "pending" %}
+                                    <span style="color: orange; font-weight:600;">Pending</span>
+                                {% elif p.status == "approved" %}
+                                    <span style="color: blue; font-weight:600;">Approved</span>
+                                {% elif p.status == "paid" %}
+                                    <span style="color: green; font-weight:600;">Paid</span>
+                                {% else %}
+                                    <span style="color: red; font-weight:600;">Rejected</span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ p.created_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: #6c757d;">No withdrawal requests found.</p>
+    {% endif %}
+</div>
 
 <!-- ✅ Payout List -->
 {% comment %} {% if payouts %}
