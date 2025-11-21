@@ -20,6 +20,52 @@ from wallet.models import Wallet, WalletTransaction
 import json
 
 
+# # ---------------------------
+# # ✅ USER REGISTRATION
+# # ---------------------------
+# def register_user(request):
+#     # Store referral ID if present
+#     if 'ref' in request.GET:
+#         request.session['referral_id'] = request.GET.get('ref')
+
+#     referral_id = request.session.get('referral_id')
+#     parent_sponsor = None
+#     if referral_id:
+#         try:
+#             parent_sponsor = CustomUser.objects.get(unique_id=referral_id)
+#         except CustomUser.DoesNotExist:
+#             messages.error(request, "Invalid referral link.")
+#             return redirect('register')
+
+#     if request.method == 'POST':
+#         form = CustomUserRegistrationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             user.parent_sponsor = parent_sponsor
+#             user.save()
+
+#             request.session.pop('referral_id', None)
+#             login(request, user)
+#             messages.success(request, 'Registration successful. Please fill in your shipping info.')
+#             return redirect('update_info')
+#         else:
+#             messages.error(request, 'Unsuccessful registration. Invalid information.')
+#     else:
+#         form = CustomUserRegistrationForm()
+
+#     return render(request, 'users/register.html', {'form': form})
+
+
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from .forms import CustomUserRegistrationForm, UpdateInfoForm
+from .models import Profile, CustomUser
+
 # ---------------------------
 # ✅ USER REGISTRATION
 # ---------------------------
@@ -44,16 +90,69 @@ def register_user(request):
             user.parent_sponsor = parent_sponsor
             user.save()
 
+            # Store password temporarily for welcome letter display
+            temp_password = form.cleaned_data['password1']
+            request.session['temp_password'] = temp_password
+
             request.session.pop('referral_id', None)
             login(request, user)
-            messages.success(request, 'Registration successful. Please fill in your shipping info.')
-            return redirect('update_info')
+
+            messages.success(request, 'Registration successful.')
+            return redirect('welcome_letter')  # redirect to welcome letter page
         else:
             messages.error(request, 'Unsuccessful registration. Invalid information.')
     else:
         form = CustomUserRegistrationForm()
 
     return render(request, 'users/register.html', {'form': form})
+
+
+# ---------------------------
+# ✅ UPDATE SHIPPING / INFO
+# ---------------------------
+def update_info(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in to update your info.")
+        return redirect('login')
+
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    initial_data = {
+        'full_name': f"{request.user.first_name} {request.user.last_name}".strip(),
+        'email': request.user.email,
+    }
+    form = UpdateInfoForm(request.POST or None, instance=profile, initial=initial_data)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Your profile info has been updated.")
+        return redirect('home')
+
+    return render(request, 'users/update_info.html', {'form': form})
+
+
+# ---------------------------
+# ✅ WELCOME LETTER VIEW
+# ---------------------------
+@login_required
+def welcome_letter_view(request):
+    user = request.user
+    temp_password = request.session.get('temp_password', '********')  # hide if not available
+
+    context = {
+        'full_name': f"{user.first_name} {user.last_name}".strip(),
+        'login_id': user.unique_id,  # use unique_id instead of username
+        'password': temp_password,
+        'login_url': 'https://lmggroup.org/',
+    }
+
+    # Remove temp password after showing once
+    if 'temp_password' in request.session:
+        del request.session['temp_password']
+
+    return render(request, 'users/welcome_letter.html', context)
+
+
+
 
 
 # ---------------------------
@@ -118,24 +217,24 @@ def update_user(request):
 # ---------------------------
 # ✅ UPDATE SHIPPING / INFO
 # ---------------------------
-def update_info(request):
-    if not request.user.is_authenticated:
-        messages.error(request, "You must be logged in to update your info.")
-        return redirect('login')
+# def update_info(request):
+#     if not request.user.is_authenticated:
+#         messages.error(request, "You must be logged in to update your info.")
+#         return redirect('login')
 
-    profile, _ = Profile.objects.get_or_create(user=request.user)
-    initial_data = {
-        'full_name': f"{request.user.first_name} {request.user.last_name}".strip(),
-        'email': request.user.email,
-    }
-    form = UpdateInfoForm(request.POST or None, instance=profile, initial=initial_data)
+#     profile, _ = Profile.objects.get_or_create(user=request.user)
+#     initial_data = {
+#         'full_name': f"{request.user.first_name} {request.user.last_name}".strip(),
+#         'email': request.user.email,
+#     }
+#     form = UpdateInfoForm(request.POST or None, instance=profile, initial=initial_data)
 
-    if form.is_valid():
-        form.save()
-        messages.success(request, "Your profile info has been updated.")
-        return redirect('home')
+#     if form.is_valid():
+#         form.save()
+#         messages.success(request, "Your profile info has been updated.")
+#         return redirect('home')
 
-    return render(request, 'users/update_info.html', {'form': form})
+#     return render(request, 'users/update_info.html', {'form': form})
 
 
 # ---------------------------

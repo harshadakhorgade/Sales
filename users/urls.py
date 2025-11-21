@@ -12,6 +12,8 @@ urlpatterns = [
     path('update_password/', views.update_password, name='update_password'),
     # path('billing_info/', views.billing_info, name='billing_info'),
     path('update-info/', views.update_info, name='update_info'),
+    path('welcome-letter/', views.welcome_letter_view, name='welcome_letter'),
+
 
     # path('shipping_info/', views.shipping_info, name='shipping_info'),
     path('my-referrals/', views.my_referrals_view, name='my_referrals'),
