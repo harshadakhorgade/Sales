@@ -11,88 +11,6 @@
         <h1 style="color: #28a745; text-align: center; margin-bottom: 2rem;">💰 Wallet Balance: ₹{{ wallet.balance|floatformat:2 }}</h1>
     </div>
 
-    <!-- Bank Details Section -->
-    <div class="bank-details-section">
-        <h2 style="color: #495057; margin-bottom: 1rem;">🏦 Bank Details</h2>
-        {% if bank_details %}
-            <div class="bank-info-card">
-                <div class="bank-info-item">
-                    <span class="label">Account Holder:</span>
-                    <span class="value">{{ bank_details.account_holder_name }}</span>
-                </div>
-                <div class="bank-info-item">
-                    <span class="label">Account Number:</span>
-                    <span class="value">{{ bank_details.account_number }}</span>
-                </div>
-                <div class="bank-info-item">
-                    <span class="label">IFSC Code:</span>
-                    <span class="value">{{ bank_details.ifsc_code }}</span>
-                </div>
-                <div class="bank-info-item">
-                    <span class="label">Email:</span>
-                    <span class="value">{{ bank_details.email }}</span>
-                </div>
-                <div class="bank-info-item">
-                    <span class="label">Phone:</span>
-                    <span class="value">{{ bank_details.phone_number }}</span>
-                </div>
-            </div>
-        {% else %}
-            <div class="no-bank-details">
-                <p style="color: #dc3545; font-weight: 500;">⚠️ No bank details found. Please add your bank details to withdraw money.</p>
-                <a href="{% url 'bank_details' %}" class="btn-add-bank">Add Bank Details</a>
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Messages Section -->
-    {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- Transaction History -->
-    <div class="transactions-section">
-        <h2 style="color: #495057; margin-bottom: 1rem;">📊 Transaction History</h2>
-        <div class="table-container">
-            <table class="transactions-table">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Description</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for txn in transactions %}
-                    <tr>
-                        <td>
-                            <span class="transaction-type {{ txn.transaction_type }}">
-                                {{ txn.transaction_type|title }}
-                            </span>
-                        </td>
-                        <td class="amount {{ txn.transaction_type }}">
-                            ₹{{ txn.amount|floatformat:2 }}
-                        </td>
-                        <td>{{ txn.description }}</td>
-                        <td>{{ txn.timestamp|date:"M d, Y H:i" }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="no-transactions">No transactions found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
     <!-- Withdrawal Section -->
     <div class="withdrawal-section">
         <h2 style="color: #495057; margin-bottom: 1rem;">💸 Withdraw Funds</h2>
@@ -122,71 +40,98 @@
             </div>
         {% endif %}
     </div>
-<!-- ✅ Payout Status List -->
-<div class="payout-section" style="margin-top: 2rem;">
-    <h2 style="color: #495057; margin-bottom: 1rem;">📤 Your Withdrawal Requests</h2>
 
-    {% if payouts %}
-        <div class="table-container">
-            <table class="transactions-table">
-                <thead>
-                    <tr>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in payouts %}
-                        <tr>
-                            <td>₹{{ p.amount }}</td>
-
-                            <td>
-                                {% if p.status == "pending" %}
-                                    <span style="color: orange; font-weight:600;">Pending</span>
-                                {% elif p.status == "approved" %}
-                                    <span style="color: blue; font-weight:600;">Approved</span>
-                                {% elif p.status == "paid" %}
-                                    <span style="color: green; font-weight:600;">Paid</span>
-                                {% else %}
-                                    <span style="color: red; font-weight:600;">Rejected</span>
-                                {% endif %}
-                            </td>
-
-                            <td>{{ p.created_at|date:"M d, Y H:i" }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- Payout Status List - COLLAPSIBLE WITH 4 ROWS DEFAULT -->
+    <div class="payout-section" style="margin-top: 2rem;">
+        <div class="dropdown-header" onclick="togglePayouts()">
+            <h2 style="color: #495057; margin: 0;">📤 Your Withdrawal Requests</h2>
+            <span class="dropdown-icon" id="payout-icon">▼</span>
         </div>
-    {% else %}
-        <p style="color: #6c757d;">No withdrawal requests found.</p>
-    {% endif %}
-</div>
 
-<!-- ✅ Payout List -->
-{% comment %} {% if payouts %}
-  <h3>Your Withdrawals</h3>
-  <table>
-    <tr>
-      <th>Amount</th>
-      <th>Status</th>
-      <th>Date</th>
-    </tr>
-    {% for payout in payouts %}
-    <tr>
-      <td>₹{{ payout.amount }}</td>
-      <td>{{ payout.status }}</td>
-      <td>{{ payout.created_at }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-{% else %}
-  <p>No withdrawals yet.</p>
-{% endif %} {% endcomment %}
+        {% if payouts %}
+            <div class="payout-table-wrapper" style="margin-top: 1rem;">
+                <div class="table-container">
+                    <table class="transactions-table" id="payout-table">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payout-body">
+                            {% for p in payouts %}
+                                <tr class="payout-row" style="{% if forloop.counter > 4 %}display: none;{% endif %}">
+                                    <td>₹{{ p.amount }}</td>
+                                    <td>
+                                        {% if p.status == "pending" %}
+                                            <span style="color: orange; font-weight:600;">Pending</span>
+                                        {% elif p.status == "approved" %}
+                                            <span style="color: blue; font-weight:600;">Approved</span>
+                                        {% elif p.status == "paid" %}
+                                            <span style="color: green; font-weight:600;">Paid</span>
+                                        {% else %}
+                                            <span style="color: red; font-weight:600;">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ p.created_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if payouts|length > 4 %}
+                    <button class="btn-show-more" id="payout-toggle-btn" onclick="togglePayoutRows()">
+                        Show All ({{ payouts|length }} total)
+                    </button>
+                {% endif %}
+            </div>
+        {% else %}
+            <p style="color: #6c757d; margin-top: 1rem;">No withdrawal requests found.</p>
+        {% endif %}
+    </div>
 
-<div style="margin-top: 20px;">
-        <a href="{% url 'user_profile' %}">← Back to Profile</a>
+    <!-- Transaction History - COLLAPSIBLE DROPDOWN -->
+    <div class="transactions-section">
+        <div class="dropdown-header" onclick="toggleTransactions()">
+            <h2 style="color: #495057; margin: 0;">📊 Transaction History</h2>
+            <span class="dropdown-icon" id="dropdown-icon">▼</span>
+        </div>
+        
+        <div class="dropdown-content" id="transactions-content">
+            <div class="table-container">
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in transactions %}
+                        <tr>
+                            <td>
+                                <span class="transaction-type {{ txn.transaction_type }}">
+                                    {{ txn.transaction_type|title }}
+                                </span>
+                            </td>
+                            <td class="amount {{ txn.transaction_type }}">
+                                ₹{{ txn.amount|floatformat:2 }}
+                            </td>
+                            <td>{{ txn.description }}</td>
+                            <td>{{ txn.timestamp|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="no-transactions">No transactions found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <div style="margin-top: 2rem; text-align: center;">
@@ -211,6 +156,43 @@
         padding: 1.5rem;
         background-color: #f8f9fa;
         border-radius: 8px;
+    }
+
+    /* Dropdown Styles */
+    .dropdown-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .dropdown-header:hover {
+        background-color: #e9ecef;
+    }
+
+    .dropdown-icon {
+        font-size: 1.2rem;
+        color: #495057;
+        transition: transform 0.3s ease;
+    }
+
+    .dropdown-icon.rotated {
+        transform: rotate(180deg);
+    }
+
+    .dropdown-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease, margin-top 0.3s ease;
+    }
+
+    .dropdown-content.open {
+        max-height: 600px;
+        overflow-y: auto;
+        margin-top: 1rem;
     }
 
     .bank-info-card {
@@ -386,23 +368,23 @@
         border: 2px dashed #6c757d;
     }
 
-    .alert {
-        padding: 1rem;
-        margin-bottom: 1rem;
+    .btn-show-more {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
         border-radius: 4px;
-        border: 1px solid transparent;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
     }
 
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        border-color: #c3e6cb;
-    }
-
-    .alert-error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border-color: #f5c6cb;
+    .btn-show-more:hover {
+        background-color: #0056b3;
     }
 
     @media (max-width: 768px) {
@@ -429,5 +411,31 @@
         }
     }
 </style>
+
+<script>
+    function toggleTransactions() {
+        const content = document.getElementById('transactions-content');
+        const icon = document.getElementById('dropdown-icon');
+        
+        content.classList.toggle('open');
+        icon.classList.toggle('rotated');
+    }
+
+    let payoutExpanded = false;
+    function togglePayoutRows() {
+        const rows = document.querySelectorAll('.payout-row');
+        const btn = document.getElementById('payout-toggle-btn');
+        
+        payoutExpanded = !payoutExpanded;
+        
+        rows.forEach((row, index) => {
+            if (index >= 4) {
+                row.style.display = payoutExpanded ? 'table-row' : 'none';
+            }
+        });
+        
+        btn.textContent = payoutExpanded ? 'Show Less' : 'Show All ({{ payouts|length }} total)';
+    }
+</script>
 
 {% endblock %}
