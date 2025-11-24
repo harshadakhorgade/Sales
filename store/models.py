@@ -7,6 +7,12 @@ from django.utils import timezone
 from django.core.files.base import ContentFile
 from PIL import Image
 
+import os
+
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+
 
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True, blank=False, null=False)
@@ -44,6 +50,7 @@ class Product(models.Model):
         null=True,
         blank=True,
         default='default/product.png'
+        
     )
     name = models.CharField(max_length=255, verbose_name='Product Name')
     price = models.DecimalField(max_digits=12, decimal_places=2)
@@ -99,15 +106,25 @@ class Product(models.Model):
         super().save(*args, **kwargs)
         self.resize_image()
 
+   
+
     def resize_image(self):
         if self.profile_image:
-            self.profile_image.seek(0)
             img = Image.open(self.profile_image)
+
             if img.height > 1125 or img.width > 1125:
                 img.thumbnail((1125, 1125))
+
                 img_io = BytesIO()
                 img.save(img_io, format=img.format, quality=70, optimize=True)
-                self.profile_image.save(self.profile_image.name, ContentFile(img_io.getvalue()), save=False)
+
+                file_name = os.path.basename(self.profile_image.name)
+
+                self.profile_image.save(
+                    file_name,
+                    ContentFile(img_io.getvalue()),
+                    save=False   # 👈 IMPORTANT
+                )
 
     @property
     def imageURL(self):
@@ -139,15 +156,27 @@ class ProductImage(models.Model):
         super().save(*args, **kwargs)
         self.resize_image()
 
+
+
     def resize_image(self):
-        if self.product_images:
-            self.product_images.seek(0)
-            img = Image.open(self.product_images)
+        if self.product_images and hasattr(self.product_images, 'path'):
+            img = Image.open(self.product_images.path)
+
             if img.height > 1125 or img.width > 1125:
                 img.thumbnail((1125, 1125))
+
                 img_io = BytesIO()
-                img.save(img_io, format=img.format, quality=70, optimize=True)
-                self.product_images.save(self.product_images.name, ContentFile(img_io.getvalue()), save=False)
+
+                # Always save as JPEG for safety
+                img.save(img_io, format='JPEG', quality=70)
+
+                new_image = ContentFile(
+                    img_io.getvalue(),
+                    name=self.product_images.name
+                )
+
+                self.product_images.save(self.product_images.name, new_image, save=False)
+
 
     @property
     def imageURL(self):
