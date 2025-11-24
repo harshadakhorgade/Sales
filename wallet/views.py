@@ -7,7 +7,7 @@ import uuid
 from decimal import Decimal
 
 from wallet.models import Wallet, WalletTransaction, Payout
-from users.models import BankingDetails
+# ❌ removed: from users.models import BankingDetails
 
 
 @login_required
@@ -34,16 +34,15 @@ def wallet_transactions_view(request):
 
         request_id = request.POST.get('request_id') or str(uuid.uuid4())
 
-        # Prevent duplicates
+        # Prevent duplicate request
         if Payout.objects.filter(transaction_id=request_id).exists():
             messages.warning(request, "This withdrawal request already exists.")
             return redirect('wallet_transactions')
 
         with transaction.atomic():
-
             wallet = Wallet.objects.select_for_update().get(user=user)
 
-            # Check available balance but DO NOT deduct here
+            # ✅ Only check balance, do NOT deduct yet
             if wallet.balance < amount:
                 return JsonResponse({"error": "Insufficient wallet balance."}, status=400)
 
@@ -62,17 +61,9 @@ def wallet_transactions_view(request):
         )
         return redirect('wallet_transactions')
 
-
-    # GET request
-    try:
-        bank_details = BankingDetails.objects.get(user=user)
-    except BankingDetails.DoesNotExist:
-        bank_details = None
-
     return render(request, 'wallet/wallet_transactions.html', {
         'wallet': wallet,
         'transactions': transactions,
         'payouts': payouts,
-        'bank_details': bank_details,
         'request_id': str(uuid.uuid4()),
     })

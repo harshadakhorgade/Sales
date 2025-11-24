@@ -8,40 +8,49 @@
 {% block content %}
 <div class="wallet-container">
     <div class="wallet-header">
-        <h1 style="color: #28a745; text-align: center; margin-bottom: 2rem;">💰 Wallet Balance: ₹{{ wallet.balance|floatformat:2 }}</h1>
+        <h1 style="color: #28a745; text-align: center; margin-bottom: 2rem;">
+            💰 Wallet Balance: ₹{{ wallet.balance|floatformat:2 }}
+        </h1>
     </div>
 
-    <!-- Withdrawal Section -->
+    <!-- ✅ Withdrawal Section -->
     <div class="withdrawal-section">
         <h2 style="color: #495057; margin-bottom: 1rem;">💸 Withdraw Funds</h2>
         
-        {% if bank_details %}
-            <form method="post" class="withdrawal-form">
-                {% csrf_token %}
-                <input type="hidden" name="request_id" value="{{ request_id }}">
+        <form method="post" class="withdrawal-form">
+            {% csrf_token %}
+            <input type="hidden" name="request_id" value="{{ request_id }}">
 
-                <div class="form-group">
-                    <label for="amount">Withdrawal Amount:</label>
-                    <input type="number" name="amount" step="0.01" min="1" max="{{ wallet.balance }}" placeholder="Enter amount" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="upi_id">Your UPI ID:</label>
-                    <input type="text" name="upi_id" placeholder="example@upi" required>
-                </div>
-
-                <button type="submit" class="btn-withdraw">Withdraw Money</button>
-            </form>
-
-        {% else %}
-            <div class="withdrawal-disabled">
-                <p style="color: #6c757d;">Please add your bank details first to withdraw money.</p>
-                <a href="{% url 'bank_details' %}" class="btn-add-bank">Add Bank Details</a>
+            <div class="form-group">
+                <label for="amount">Withdrawal Amount:</label>
+                <input 
+                    type="number" 
+                    name="amount" 
+                    step="0.01" 
+                    min="1" 
+                    max="{{ wallet.balance }}" 
+                    placeholder="Enter amount" 
+                    required
+                >
             </div>
-        {% endif %}
+
+            <div class="form-group">
+                <label for="upi_id">Your UPI ID:</label>
+                <input 
+                    type="text" 
+                    name="upi_id" 
+                    placeholder="example@upi" 
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn-withdraw">
+                Withdraw Money
+            </button>
+        </form>
     </div>
 
-    <!-- Payout Status List - COLLAPSIBLE WITH 4 ROWS DEFAULT -->
+    <!-- ✅ Payout Status -->
     <div class="payout-section" style="margin-top: 2rem;">
         <div class="dropdown-header" onclick="togglePayouts()">
             <h2 style="color: #495057; margin: 0;">📤 Your Withdrawal Requests</h2>
@@ -80,6 +89,7 @@
                         </tbody>
                     </table>
                 </div>
+
                 {% if payouts|length > 4 %}
                     <button class="btn-show-more" id="payout-toggle-btn" onclick="togglePayoutRows()">
                         Show All ({{ payouts|length }} total)
@@ -91,7 +101,7 @@
         {% endif %}
     </div>
 
-    <!-- Transaction History - COLLAPSIBLE DROPDOWN -->
+    <!-- ✅ Transaction History -->
     <div class="transactions-section">
         <div class="dropdown-header" onclick="toggleTransactions()">
             <h2 style="color: #495057; margin: 0;">📊 Transaction History</h2>
@@ -139,6 +149,7 @@
     </div>
 </div>
 
+<!-- ✅ CSS -->
 <style>
     .wallet-container {
         max-width: 1000px;
@@ -149,7 +160,6 @@
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
-    .bank-details-section,
     .transactions-section,
     .withdrawal-section {
         margin-bottom: 2rem;
@@ -158,7 +168,6 @@
         border-radius: 8px;
     }
 
-    /* Dropdown Styles */
     .dropdown-header {
         display: flex;
         justify-content: space-between;
@@ -166,27 +175,21 @@
         cursor: pointer;
         padding: 0.5rem;
         border-radius: 4px;
-        transition: background-color 0.2s ease;
     }
 
-    .dropdown-header:hover {
-        background-color: #e9ecef;
-    }
+    .dropdown-header:hover { background-color: #e9ecef; }
 
     .dropdown-icon {
         font-size: 1.2rem;
-        color: #495057;
         transition: transform 0.3s ease;
     }
 
-    .dropdown-icon.rotated {
-        transform: rotate(180deg);
-    }
+    .dropdown-icon.rotated { transform: rotate(180deg); }
 
     .dropdown-content {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.4s ease, margin-top 0.3s ease;
+        transition: max-height 0.4s ease;
     }
 
     .dropdown-content.open {
@@ -195,152 +198,19 @@
         margin-top: 1rem;
     }
 
-    .bank-info-card {
-        background-color: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        border-left: 4px solid #28a745;
-    }
-
-    .bank-info-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .bank-info-item:last-child {
-        border-bottom: none;
-    }
-
-    .bank-info-item .label {
-        font-weight: 500;
-        color: #495057;
-    }
-
-    .bank-info-item .value {
-        color: #212529;
-        font-weight: 600;
-    }
-
-    .no-bank-details {
-        text-align: center;
-        padding: 2rem;
-        background-color: white;
-        border-radius: 8px;
-        border: 2px dashed #dc3545;
-    }
-
-    .btn-add-bank {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
-        background-color: #28a745;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: 500;
-        margin-top: 1rem;
-        transition: background-color 0.3s ease;
-    }
-
-    .btn-add-bank:hover {
-        background-color: #218838;
-        color: white;
-        text-decoration: none;
-    }
-
-    .table-container {
-        overflow-x: auto;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .transactions-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .transactions-table th {
-        background-color: #495057;
-        color: white;
-        padding: 1rem;
-        text-align: left;
-        font-weight: 600;
-    }
-
-    .transactions-table td {
-        padding: 1rem;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .transactions-table tr:hover {
-        background-color: #f8f9fa;
-    }
-
-    .transaction-type {
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-
-    .transaction-type.credit {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .transaction-type.debit {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    .amount.credit {
-        color: #28a745;
-        font-weight: 600;
-    }
-
-    .amount.debit {
-        color: #dc3545;
-        font-weight: 600;
-    }
-
-    .no-transactions {
-        text-align: center;
-        color: #6c757d;
-        font-style: italic;
-    }
-
     .withdrawal-form {
         background-color: white;
         padding: 1.5rem;
         border-radius: 8px;
     }
 
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #495057;
-    }
+    .form-group { margin-bottom: 1rem; }
 
     .form-group input {
         width: 100%;
         padding: 0.75rem;
-        border: 2px solid #e9ecef;
+        border: 1px solid #ddd;
         border-radius: 4px;
-        font-size: 1rem;
-        transition: border-color 0.3s ease;
-    }
-
-    .form-group input:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
     }
 
     .btn-withdraw {
@@ -350,73 +220,19 @@
         color: white;
         border: none;
         border-radius: 4px;
-        font-size: 1rem;
-        font-weight: 500;
         cursor: pointer;
-        transition: background-color 0.3s ease;
     }
 
     .btn-withdraw:hover {
         background-color: #c82333;
     }
-
-    .withdrawal-disabled {
-        text-align: center;
-        padding: 2rem;
-        background-color: white;
-        border-radius: 8px;
-        border: 2px dashed #6c757d;
-    }
-
-    .btn-show-more {
-        display: block;
-        width: 100%;
-        padding: 0.75rem;
-        margin-top: 0.5rem;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .btn-show-more:hover {
-        background-color: #0056b3;
-    }
-
-    @media (max-width: 768px) {
-        .wallet-container {
-            margin: 1rem;
-            padding: 1rem;
-        }
-
-        .bank-details-section,
-        .transactions-section,
-        .withdrawal-section {
-            padding: 1rem;
-        }
-
-        .bank-info-item {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .transactions-table th,
-        .transactions-table td {
-            padding: 0.5rem;
-            font-size: 0.875rem;
-        }
-    }
 </style>
 
+<!-- ✅ JavaScript -->
 <script>
     function toggleTransactions() {
         const content = document.getElementById('transactions-content');
         const icon = document.getElementById('dropdown-icon');
-        
         content.classList.toggle('open');
         icon.classList.toggle('rotated');
     }
@@ -425,15 +241,15 @@
     function togglePayoutRows() {
         const rows = document.querySelectorAll('.payout-row');
         const btn = document.getElementById('payout-toggle-btn');
-        
+
         payoutExpanded = !payoutExpanded;
-        
+
         rows.forEach((row, index) => {
             if (index >= 4) {
                 row.style.display = payoutExpanded ? 'table-row' : 'none';
             }
         });
-        
+
         btn.textContent = payoutExpanded ? 'Show Less' : 'Show All ({{ payouts|length }} total)';
     }
 </script>
